@@ -1,0 +1,11 @@
+{
+  "targets": {
+    "car-rental-b6404": {
+      "hosting": {
+        "car-rental": [
+          "car-rental-b6404"
+        ]
+      }
+    }
+  }
+}

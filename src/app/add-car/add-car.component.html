@@ -1,0 +1,46 @@
+
+<div class="container">
+  <h3>
+    Add Car
+  </h3>
+    <label for = "carName">Car Name:</label><br>
+    <input type = "text" class="form-control input" placeholder = "Please enter car name" [(ngModel)] = "carName"><br>
+    <label for = "rentPrice">Rent Price:</label><br>
+    <input type = "text" class="form-control input" placeholder = "Please enter rent price / day" [(ngModel)] = "carPrice"><br>
+
+    <button id = "submitButton" [disabled] = "!carName || !carPrice" class="btn" (click) = "CreateRecord()">Submit</button>
+</div>
+
+<div class="container">
+  <h3>
+    Select a Car
+  </h3>
+  <select [(ngModel)]= "selectedOption">
+    <ng-container *ngFor ="let item of car">
+      <ng-container *ngIf = "item.carRented === '0'">
+        <option value="{{item.id}}">
+          {{item.carName}}
+        </option>
+      </ng-container>
+    </ng-container>
+  </select>
+  <br><br>
+  <button id = "submitButton" class="btn" (click) = "rentCar()">Rent Car</button>
+</div>
+
+<div class="container">
+  <h3>
+    Return Car
+  </h3>
+  <select [(ngModel)]= "selectedOptionReturn">
+    <ng-container *ngFor ="let item of car">
+      <ng-container *ngIf = "item.carRented === usid">
+        <option value="{{item.id}}">
+          {{item.carName}}
+        </option>
+      </ng-container>
+    </ng-container>
+  </select>
+  <br><br>
+  <button id = "returnButton" class="btn" (click) = "returnCar()">Return Car</button>
+</div>
