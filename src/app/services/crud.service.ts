@@ -1,6 +1,8 @@
 import { Injectable } from '@angular/core';
 import { AngularFirestore } from '@angular/fire/firestore';
 import { AngularFireAuth } from '@angular/fire/auth';
+import { empty } from 'rxjs';
+
 
 @Injectable({
   providedIn: 'root'
@@ -28,7 +30,18 @@ export class CrudService {
     });
   }
 
+  updateReturnCar(carID:string){
+    this.fireservices.collection('cars').doc(carID).update({
+      carRented : "0",
+      dateRent : null,
+    });
+  }
+
+  addReviews(carID:string, Review:any){
+    return this.fireservices.collection('cars').doc(carID).collection('reviews').add(Review);
+  }
+
   returnRentCar(carID:string){
-    return (this.fireservices.collection('cars').doc(carID).snapshotChanges())
+    return this.fireservices.collection('cars').doc(carID).snapshotChanges();
   }
 }

@@ -1,6 +1,7 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { AppComponent } from './app.component';
+import { HttpClientModule } from '@angular/common/http';
 import { HomeComponent } from './home/home.component';
 import { environment } from 'src/environments/environment';
 import { AddCarComponent } from './add-car/add-car.component';
@@ -23,6 +24,7 @@ import { CrudService } from './services/crud.service';
     AngularFireDatabaseModule,
     AngularFirestoreModule,
     FormsModule,
+    HttpClientModule,
   ],
   providers: [
     FirebaseService,

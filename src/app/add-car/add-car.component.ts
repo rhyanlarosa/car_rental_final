@@ -1,6 +1,7 @@
 import { Component} from '@angular/core';
 import { CrudService } from '../services/crud.service';
 import { AngularFireAuth } from '@angular/fire/auth';
+import { HttpClient } from '@angular/common/http';
 
 @Component({
   selector: 'app-add-car',
@@ -8,6 +9,8 @@ import { AngularFireAuth } from '@angular/fire/auth';
   styleUrls: ['./add-car.component.css']
 })
 export class AddCarComponent {
+  Review = {};
+  Record = {};
   car: any;
   carName: string;
   carPrice: string;
@@ -16,13 +19,17 @@ export class AddCarComponent {
   printedOption: string;
   selectedOptionReturn: string;
   printedOptionReturn: string;
-  Record = {};
   usid : string;
   carReturnDate : number;
   diffDays: number;
   carToPay : number;
+  userReview:string;
+  sentiment : any;
+  userReviewNumber : number;
+  carRate : number;
+  toPay : any;
 
-  constructor(public crudservice : CrudService, public firebaseAuth : AngularFireAuth){
+  constructor(public crudservice : CrudService, public firebaseAuth : AngularFireAuth, private httpClient : HttpClient){
     this.firebaseAuth.user.subscribe((data => {
       this.usid = data.uid;
     }))
@@ -40,6 +47,24 @@ export class AddCarComponent {
       })
       console.log(this.car);
     })
+  }
+
+  async analyzer() {
+    let sentimentJSON: any;
+    sentimentJSON = await this.httpClient.get('http://127.0.0.1:5002/sentiment-analysis/' + this.userReview).toPromise() as JSON
+    this.sentiment = sentimentJSON["sentiment"]
+
+    if (this.sentiment == "Positive") {
+      this.userReviewNumber = 1;
+    }
+    else if (this.sentiment == "Negative") {
+      this.userReviewNumber = -1;
+    }
+    else {
+      this.sentiment = "Neutral"
+      this.userReviewNumber = 0;
+    }
+    this.CreateReview()
   }
 
   CreateRecord(){
@@ -66,14 +91,35 @@ export class AddCarComponent {
     this.printedOptionReturn = this.selectedOptionReturn;
     this.crudservice.returnRentCar(this.printedOptionReturn).subscribe(data =>{
       this.carReturnDate = data.payload.data()['dateRent'];
-      var rate = data.payload.data()['carPrice'];
-      var diff = Math.abs(Date.now() - this.carReturnDate);
-      this.diffDays = Math.ceil(diff / (1000 * 3600 * 24));
-      this.carToPay = rate*this.diffDays;
-      console.log(this.diffDays);
-      this.myFunc();
+      this.carRate = data.payload.data()['carPrice'];
+      this.analyzer();
+      // this.CreateReview();
     })
   }
+
+  Calculate(){
+    var diff = Math.abs(Date.now() - this.carReturnDate);
+    this.diffDays = Math.ceil(diff / (1000 * 3600 * 24));
+    this.carToPay = this.carRate*this.diffDays;
+    console.log(this.diffDays);
+    this.updateCar();
+    // this.updateCar();
+  }
+
+  CreateReview(){
+    this.Review['review'] = this.userReviewNumber;
+    this.crudservice.addReviews(this.printedOptionReturn, this.Review).then(res =>{
+      console.log(res);
+    }).catch(error => {
+      console.log(error);
+    })
+  }
+
+  updateCar(){
+    this.crudservice.updateReturnCar(this.printedOptionReturn);
+    this.myFunc();
+  }
+
   myFunc() {
     alert("To Pay: "+this.carToPay);
   }
